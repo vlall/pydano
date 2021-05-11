@@ -10,9 +10,10 @@ import concurrent.futures
 import json
 from datetime import datetime
 from mnemonic import Mnemonic
+from cardano_wrapper.utils import Timer
+
 
 class AddressWrap(object):
-
     def __init__(self, path="../bin/cardano-address", wallet="shelley"):
         self.path = path
         if wallet.lower() == "shelley":
@@ -29,7 +30,7 @@ class AddressWrap(object):
         time_str = self.get_time_str()
         with open(f"keys_{time_str}.json", "w") as keys:
             json.dump(keyDict, keys)
-    
+
     @staticmethod
     def trezor_mnenmoic(language="english"):
         mnemo = Mnemonic(language)
@@ -42,15 +43,15 @@ class AddressWrap(object):
         cmd = f"./cardano-address recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
         return output.stdout.rstrip()
-    
-    @staticmethod 
+
+    @staticmethod
     def get_root_private_key(phrase):
         #  cat phrase.prv \
         # | ./cardano-address key from-recovery-phrase Shelley > root.xs
         cmd = "./cardano-address key from-recovery-phrase Shelley"
         output = subprocess.run(cmd.split(), input=phrase, capture_output=True)
         return output.stdout.rstrip()
-    
+
     @staticmethod
     def get_root_public_key(root_private):
         # cat root.xsk | ./cardano-address key public --with-chain-code
@@ -86,7 +87,7 @@ class AddressWrap(object):
     def get_time_str():
         timestr = datetime.utcnow().strftime("%m-%d-%Y_%H-%M-%S-%f")[:-3]
         return timestr
-    
+
     def task(self, address):
         # Indices are random 2^32.
         private_key = self.get_private_key(self.root_private, address)
@@ -127,20 +128,6 @@ class AddressWrap(object):
         with open(f"addresses_{time_str}.json", "w") as keys:
             json.dump(keyDict, keys)
         return list_of_addresses
-
-
-class Timer:
-    def warn(self, s):
-        print(s, file=sys.stderr)
-
-    def __enter__(self):
-        self.start = time.perf_counter()
-        return self
-
-    def __exit__(self, *args):
-        self.end = time.perf_counter()
-        self.interval = self.end - self.start
-        self.warn("timer (sec): " + str(self.interval))
 
 
 if __name__ == "__main__":

@@ -47,7 +47,7 @@ class WalletWrap(object):
                 f"{bcolors.FAIL}Empty or incorrect wallet type.{bcolors.ENDC}"
             )
 
-    def get_network_information(self):
+    def network_information(self):
         print("*** Get network information. ***")
         r = requests.get(f"{self.server}/{self.version}/network/information")
         print(r.status_code)
@@ -87,7 +87,9 @@ class WalletWrap(object):
         )
         return r.json()
 
-    def create_transaction(self, wallet_type, wallet_id, to_address, quantity, assets=None):
+    def create_transaction(
+        self, wallet_type, wallet_id, to_address, quantity, assets=None
+    ):
         wallets = self.make_wallet_path(wallet_type)
         endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/payment-fees"
         print(endpoint)
@@ -199,13 +201,89 @@ class WalletWrap(object):
         return r.json()
 
     def is_sync_ready(self):
-        progress = self.get_network_information()["sync_progress"]["status"]
+        progress = self.network_information()["sync_progress"]["status"]
         print(progress)
         return progress == "ready"
 
+    def smash_health(self):
+        r = requests.get(f"{self.server}/{self.version}/smash/health")
+        return r.json()
+
+    def network_clock(self):
+        print("*** Get network clock. ***")
+        r = requests.get(f"{self.server}/{self.version}/network/clock")
+        return r.json()
+
+    def network_parameters(self):
+        r = requests.get(f"{self.server}/{self.version}/network/parameters")
+        return r.json()
+
+    def settings(self):
+        r = requests.get(f"{self.server}/{self.version}/settings")
+        return r.json()
+
+    def utxo_statistics(self, wallet_id):
+        print("*** Get UTxO Statistics. ***")
+        r = requests.get(f"{self.server}/{self.version}/{wallet_id}/statistics/utxos")
+        return r.json()
+
+    def update_wallet_name(self, wallets, wallet_id, name):
+        print("*** Update wallet name. ***")
+        r = requests.put(
+            f"{self.server}/{self.version}/{wallets}/{wallet_id}",
+            json={
+                "name": name,
+            },
+        )
+        return r.json()
+
+    def update_wallet_passphrase(
+        self, wallets, wallet_id, old_passphrase, new_passphrase
+    ):
+        print("*** Update wallet passphrase. ***")
+        r = requests.put(
+            f"{self.server}/{self.version}/{wallets}/{wallet_id}/passphrase",
+            json={
+                "old_passphrase": old_passphrase,
+                "new_passphrase": new_passphrase,
+            },
+        )
+        return r.json()
+
+    def list_wallet_assets(self, wallets, wallet_id):
+        print("*** List assets. ***")
+        r = requests.get(f"{self.server}/{self.version}/{wallets}/{wallet_id}/assets")
+        return r.json()
+
+    def maintenance_ations(self, wallet_id):
+        print("*** List maintenance actions. ***")
+        r = requests.get(
+            f"{self.server}/{self.version}/stake-pools/maintenance-actions"
+        )
+        return r.json()
+
+    def delegation_fees(self, wallets, wallet_id):
+        print("*** List delegation fees. ***")
+        r = requests.get(
+            f"{self.server}/{self.version}/{wallets}/{wallet_id}/delegation-fees"
+        )
+        return r.json()
+
+    def coin_selections(self, wallets, wallet_id):
+        print("*** Select coins to cover the given set of payments. ***")
+        r = requests.post(
+            f"{self.server}/{self.version}/{wallets}/{wallet_id}/coin-selections/random"
+        )
+        print(r.json())
+
+    def shared_wallets(self, wallets, wallet_id):
+        print("*** Get share wallets. ***")
+        r = requests.get(f"{self.server}/{self.version}/shared-wallets/{wallet_id}/")
+        print(r.json())
+
 
 if __name__ == "__main__":
-    wallet = WalletWrapper()
+    wallet = WalletWrap()
     print(wallet.get_network_information())
     print(wallet.is_sync_ready())
     print(wallet.list_wallets())
@@ -231,82 +309,5 @@ if __name__ == "__main__":
     print("Should be created...")
     # print(wallet.list_addresses())
     print(wallet.list_wallets())
-
-# # Define a wallet ID to showcase more API calls.
-# wallet_id = r.json()[0]["id"]
-
-# print("*** Get UTxO Statistics. ***")
-# r = requests.get(f"{server}/{version}/{wallet_id}/statistics/utxos")
-# num_wallets = list(r.json())
-# print(json.dumps(r.json(), indent=2))
-
-# print("*** Update wallet name. ***")
-# r = requests.put(
-#     f"{server}/{version}/{wallets}/{wallet_id}",
-#     json={
-#         "name": "Delete Me",
-#     },
-# )
-
-# print("*** Update wallet passphrase. ***")
-# r = requests.put(
-#     f"{server}/{version}/{wallets}/{wallet_id}/passphrase",
-#     json={
-#         "old_passphrase": "passphrase",
-#         "new_passphrase": "new_passphrase",
-#     },
-# )
-
-# print("*** List assets. ***")
-# r = requests.get(f"{server}/{version}/{wallets}/{wallet_id}/assets")
-# print(json.dumps(r.json(), indent=2))
-
-# print("*** List maintenance actions. ***")
-# r = requests.get(f"{server}/{version}/stake-pools/maintenance-actions")
-# print(json.dumps(r.json(), indent=2))
-
-# print("*** List delegation fees. ***")
-# r = requests.get(f"{server}/{version}/{wallets}/{wallet_id}/delegation-fees")
-# print(json.dumps(r.json(), indent=2))
-
-# print("*** Select coins to cover the given set of payments. ***")
-# r = requests.post(f"{server}/{version}/{wallets}/{wallet_id}/coin-selections/random")
-# print(r)
-
-# # Shared wallets (Shelley)
-# print("*** Get share wallets. ***")
-# r = requests.get(f"{server}/{version}/shared-wallets/{wallet_id}/")
-# print(json.dumps(r.json(), indent=2))
-
-# # Miscellaneous
-# print("*** Get smash health. ***")
-# r = requests.get(f"{server}/{version}/smash/health")
-# print(json.dumps(r.json(), indent=2))
-# print("*** Get network information. ***")
-# r = requests.get(f"{server}/{version}/network/information")
-# print(json.dumps(r.json(), indent=2))
-# print("*** Get network clock. ***")
-# r = requests.get(f"{server}/{version}/network/clock")
-# print(json.dumps(r.json(), indent=2))
-# print("*** Get network parameters. ***")
-# r = requests.get(f"{server}/{version}/network/parameters")
-# print(json.dumps(r.json(), indent=2))
-# print("*** Get settings. ***")
-# r = requests.get(f"{server}/{version}/settings")
-# print(json.dumps(r.json(), indent=2))
-
-
-# print("*** Send Trasaction addresses. ***")
-# r = requests.get(f"{server}/{version}/{wallets}/{wallet_id}/addresses")
-# print(json.dumps(r.json(), indent=2))
-
-# def test_network_information(self):
-#     # endpoint =  "/v2/network/information"
-#     wallet = WalletWrapper()
-#     w = wallet.get_network_information()
-#     expected = {'network_tip': {'time': '2021-05-06T22:16:05Z', 'epoch_number': 130, 'absolute_slot_number': 25970149, 'slot_number': 179749}, 'node_era': 'mary', 'node_tip': {'height': {'quantity': 2559275, 'unit': 'block'}, 'time': '2021-05-06T22:15:50Z', 'epoch_number': 130, 'absolute_slot_number': 25970134, 'slot_number': 179734}, 'sync_progress': {'status': 'ready'}, 'next_epoch': {'epoch_start_time': '2021-05-09T20:20:16Z', 'epoch_number': 131}}
-#     print(w)
-#     print(expected)
-#     print("test***")
-#     print(json.dumps(w)==json.dumps(expected))
-#     self.assertEqual(dict(w), dict(expected))
+    # # Define a wallet ID to showcase more API calls.
+    # wallet_id = r.json()[0]["id"]

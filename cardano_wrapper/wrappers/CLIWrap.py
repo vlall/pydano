@@ -12,12 +12,7 @@ from datetime import datetime
 
 
 class CLIWrap(object):
-    def __init__(
-        self,
-        network_type,
-        network_id,
-        path = "../bin/cardano-cli"
-    ):
+    def __init__(self, network_type, network_id, path="../bin/cardano-cli"):
         self.path = path
         self.network_type = network_type
         self.network_id = network_id

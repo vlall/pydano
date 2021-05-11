@@ -5,6 +5,7 @@ import requests
 import json
 import time
 
+
 class TestWalletEndpoints(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -51,9 +52,11 @@ class TestWalletEndpoints(unittest.TestCase):
         to_address = cls.addresses[1]["id"]
         quantity = 1000000
         # Make a transaction.
-        print(cls.wallet.create_transaction(
-            cls.wallet_type, cls.wallet_id, to_address, quantity
-        ))
+        print(
+            cls.wallet.create_transaction(
+                cls.wallet_type, cls.wallet_id, to_address, quantity
+            )
+        )
         time.sleep(30)
         print("transactions")
         print(
