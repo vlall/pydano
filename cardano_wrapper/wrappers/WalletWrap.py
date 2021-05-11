@@ -93,27 +93,29 @@ class WalletWrap(object):
         wallets = self.make_wallet_path(wallet_type)
         endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/payment-fees"
         print(endpoint)
+        payload = {
+            "payments": [
+                {
+                    "address": to_address,
+                    "amount": {"quantity": quantity, "unit": "lovelace"},
+                }
+            ]
+        }
         if assets:
             policy_id = assets["policy_id"]
             asset_name = assets["asset_name"]
             quantity = assets["quantity"]
+            assets: [
+                {
+                    "policy_id": policy_id,
+                    "asset_name": asset_name,
+                    "quantity": quantity,
+                }
+            ]
+            payload["payments"][0]["assets"] = assets
         r = requests.post(
             endpoint,
-            json={
-                "payments": [
-                    {
-                        "address": to_address,
-                        "amount": {"quantity": quantity, "unit": "lovelace"},
-                        # "assets": [
-                        #     {
-                        #         "policy_id": "65ab82542b0ca20391caaf66a4d4d7897d281f9c136cd3513136945b",
-                        #         "asset_name": "",
-                        #         "quantity": 0,
-                        #     }
-                        # ],
-                    }
-                ]
-            },
+            json=payload,
             headers=self.headers,
         )
         return r.json()
@@ -290,7 +292,6 @@ if __name__ == "__main__":
     name = "Test Wallet May 6 2021"
     passphrase = "Very important!!!"
     # mnemonic = AddressWrapper.get_mnemonic(12)
-    # print(mnemonic)
     mnemonic = [
         "squirrel",
         "material",
@@ -307,7 +308,5 @@ if __name__ == "__main__":
     ]
     wallet.create_wallet(name, passphrase, mnemonic, wallet_type="byron")
     print("Should be created...")
-    # print(wallet.list_addresses())
+    print(wallet.list_addresses())
     print(wallet.list_wallets())
-    # # Define a wallet ID to showcase more API calls.
-    # wallet_id = r.json()[0]["id"]

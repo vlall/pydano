@@ -17,17 +17,17 @@ class AddressWrap(object):
     def __init__(self, path="../bin/cardano-address", wallet="shelley"):
         self.path = path
         if wallet.lower() == "shelley":
-            phrase = self.get_mnemonic(24)
+            phrase = self.cli_mnemonic(24)
         elif wallet.lower() == "byron":
-            phrase = self.get_mnemonic(12)
+            phrase = self.cli_mnemonic(12)
         else:
             raise ValueError("test")
-        self.root_private = self.get_root_private_key(phrase)
+        self.root_private = self.root_private_key(phrase)
         keyDict = {
             "phrase": phrase.decode("utf8"),
             "root_private_key": self.root_private.decode("utf8"),
         }
-        time_str = self.get_time_str()
+        time_str = self.time_str()
         with open(f"keys_{time_str}.json", "w") as keys:
             json.dump(keyDict, keys)
 
@@ -38,14 +38,14 @@ class AddressWrap(object):
         return words.split()
 
     @staticmethod
-    def get_mnemonic(n):
+    def cli_mnemonic(n):
         #  ./cardano-address recovery-phrase generate --size 24 > phrase.prv
         cmd = f"./cardano-address recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
-    def get_root_private_key(phrase):
+    def root_private_key(phrase):
         #  cat phrase.prv \
         # | ./cardano-address key from-recovery-phrase Shelley > root.xs
         cmd = "./cardano-address key from-recovery-phrase Shelley"
@@ -53,14 +53,14 @@ class AddressWrap(object):
         return output.stdout.rstrip()
 
     @staticmethod
-    def get_root_public_key(root_private):
+    def root_public_key(root_private):
         # cat root.xsk | ./cardano-address key public --with-chain-code
         cmd = "./cardano-address key public --with-chain-code"
         output = subprocess.run(cmd.split(), input=root_private, capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
-    def get_private_key(root_private, index):
+    def private_key(root_private, index):
         """cat root.xsk \
                 | ./cardano-address key child 852H/1815H/0H/0/0 \
                 | tee acct.prv \
@@ -72,27 +72,27 @@ class AddressWrap(object):
         return output.stdout.rstrip()
 
     @staticmethod
-    def get_public_key(private_key):
+    def public_key(private_key):
         cmd = " ./cardano-address key public --with-chain-code"
         output = subprocess.run(cmd.split(), input=private_key, capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
-    def get_payment_address(public_key):
+    def payment_address(public_key):
         cmd = "./cardano-address address payment --network-tag testnet"
         output = subprocess.run(cmd.split(), input=public_key, capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
-    def get_time_str():
+    def time_str():
         timestr = datetime.utcnow().strftime("%m-%d-%Y_%H-%M-%S-%f")[:-3]
         return timestr
 
     def task(self, address):
         # Indices are random 2^32.
-        private_key = self.get_private_key(self.root_private, address)
-        public_key = self.get_public_key(private_key)
-        return self.get_payment_address(public_key).decode("utf8")
+        private_key = self.private_key(self.root_private, address)
+        public_key = self.public_key(private_key)
+        return self.payment_address(public_key).decode("utf8")
 
     def run(
         self,
@@ -124,14 +124,14 @@ class AddressWrap(object):
             "list_of_addresses": list_of_addresses,
             "time": time.time() - start_time,
         }
-        time_str = self.get_time_str()
+        time_str = self.time_str()
         with open(f"addresses_{time_str}.json", "w") as keys:
             json.dump(keyDict, keys)
         return list_of_addresses
 
 
 if __name__ == "__main__":
-    gen = AddressWrapper()
+    gen = AddressWrap()
     with Timer() as timer:
         print(gen.run(400000))
     print(str(timer.interval))

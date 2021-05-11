@@ -65,7 +65,6 @@ class TestWalletEndpoints(unittest.TestCase):
                 cls.wallet_id,
             )
         )
-        # join a stakepool
 
     @classmethod
     def tearDownClass(cls):
