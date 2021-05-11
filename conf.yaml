@@ -1,0 +1,3 @@
+# Enter configuration items here.
+server: http://localhost:8090
+version: v2
