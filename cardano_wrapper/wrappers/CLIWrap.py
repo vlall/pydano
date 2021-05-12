@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 class CLIWrap(object):
-    PATH = (path.join(path.dirname(__file__), "../bin/")
+    PATH = path.join(path.dirname(__file__), "../bin/")
 
     def __init__(
         self,
