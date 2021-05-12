@@ -28,22 +28,28 @@ class CLIWrap(object):
     def get_protocol(self):
         cmd = (
             f"{CLIWrap.PATH}./cardano-cli query protocol-parameters "
-            "{self.network_type} {self.network_id} "
+            "--{self.network_type} {self.network_id} "
             "--out-file protocol.json"
         )
         output = subprocess.run(cmd.split(), capture_output=True)
         return output.stdout.rstrip()
 
-    def query_utxo(self):
+    def query_utxo(self, address):
         """ 
         Example:
             ./cardano-cli query utxo \
             --address $(cat pay.addr) \
             --testnet-magic 1097911063
         """
-        pass
+        cmd = (
+            f"{CLIWrap.PATH}./cardano-cli query utxo "
+            "--address {address} "
+            "--{self.network_type} {self.network_id} "
+        )
+        output = subprocess.run(cmd.split(), capture_output=True)
+        return output.stdout.rstrip()
 
-    def build_transaction(self, txin, txout, invalid_hereafter, fee, out_file):
+    def build_transaction(self, tx_in, tx_out, invalid_hereafter, fee, out_file):
         """
         Example:
             ./cardano-cli transaction build-raw \
@@ -54,18 +60,30 @@ class CLIWrap(object):
             --fee 174257 \
             --out-file tx2.raw
         """
-
-    def send_transaction(self):
-        pass
+        cmd = (
+            f"{CLIWrap.PATH}./cardano-cli transaction build-raw "
+            "--tx-in {tx_in} "
+            "--tx-out {tx_out} "
+            "--invalid-hereafter {invalid_hereafter} "
+            "--fee {fee} "
+            "--out-file {out_file} "
+        )
+        output = subprocess.run(cmd.split(), capture_output=True)
+        return output.stdout.rstrip()
 
     def query_tip(self):
         """
         Example:
             ./cardano-cli query tip --testnet-magic 1097911063
         """
-        pass
+        cmd = (
+            f"{CLIWrap.PATH}./cardano-cli query tip "
+            "--{self.network_type} {self.network_id} "
+        )
+        output = subprocess.run(cmd.split(), capture_output=True)
+        return output.stdout.rstrip()
 
-    def sign(self):
+    def sign(self, tx_body_file, out_file):
         """
         Example: 
             ./cardano-cli transaction sign \
@@ -74,13 +92,28 @@ class CLIWrap(object):
             --testnet-magic 1097911063 \
             --out-file tx2.signed
         """
+        cmd = (
+            f"{CLIWrap.PATH}./cardano-cli transaction sign "
+            " --tx-body-file {tx_body_file} "
+            "--signing-key-file {signing_key_file} "
+            "--{self.network_type} {self.network_id} "
+            "--out-file {out_file} "
+        )
+        output = subprocess.run(cmd.split(), capture_output=True)
+        return output.stdout.rstrip()
         pass
 
-    def submit(self):
+    def submit(self, tx_file):
         """
         Example:
             ./cardano-cli transaction submit \
             --tx-file tx2.signed \
             --testnet-magic 1097911063 
         """
-        pass
+        cmd = (
+            f"{CLIWrap.PATH}./cardano-cli transaction submit "
+            "--tx-file {tx_file} "
+            "--{self.network_type} {self.network_id} "
+        )
+        output = subprocess.run(cmd.split(), capture_output=True)
+        return output.stdout.rstrip()
