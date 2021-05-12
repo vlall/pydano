@@ -45,7 +45,7 @@ class AddressWrap(object):
     @staticmethod
     def cli_mnemonic(n):
         #  ./cardano-address recovery-phrase generate --size 24 > phrase.prv
-        cmd = f"./cardano-address recovery-phrase generate --size {n}"
+        cmd = f"{self.path} recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
         return output.stdout.rstrip()
 
