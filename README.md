@@ -2,7 +2,7 @@
 
 **Under-development: Some features are incomplete.**
 
-This is a Cardano exectuable wrapper package using Python. It allows for quickly running scripts using the official cardano released executables using `cardano-cli`, `cardano-addresses`, and Rest API calls for using Wallet and, later Rosetta. Finally, we can run integration tests once everything is wrapped using Docker containers with Github Actions.
+This is a Cardano exectuable wrapper package using Python. It allows for quickly running scripts using the official cardano released executables using `cardano-cli`, `cardano-addresses`, Rest API calls for using Cardano Wallet and, later, integration Rosetta. Finally, we can run continuous integration tests once everything is wrapped using Docker containers with Github Actions.
 
 ## Installation
 
