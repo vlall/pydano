@@ -11,6 +11,7 @@ import json
 from datetime import datetime
 from mnemonic import Mnemonic
 from cardano_wrapper.utils import Timer
+from os import path
 
 
 class AddressWrap(object):
