@@ -15,12 +15,13 @@ from os import path
 
 
 class AddressWrap(object):
+
+    PATH = (path.join(path.dirname(__file__), "../bin/./cardano-address"),)
+
     def __init__(
         self,
-        path=path.join(path.dirname(__file__), "../bin/./cardano-address"),
         wallet="shelley",
     ):
-        self.path = path
         if wallet.lower() == "shelley":
             phrase = self.cli_mnemonic(24)
         elif wallet.lower() == "byron":
@@ -45,7 +46,7 @@ class AddressWrap(object):
     @staticmethod
     def cli_mnemonic(n):
         #  ./cardano-address recovery-phrase generate --size 24 > phrase.prv
-        cmd = f"{self.path} recovery-phrase generate --size {n}"
+        cmd = f"{PATH} recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
         return output.stdout.rstrip()
 
