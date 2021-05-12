@@ -15,6 +15,7 @@ from os import path
 
 
 class AddressWrap(object):
+    """Cardano Python wrapper for the cardano-addresses executable."""
 
     PATH = path.join(path.dirname(__file__), "../bin/")
 
@@ -22,12 +23,21 @@ class AddressWrap(object):
         self,
         wallet="shelley",
     ):
+        """Initialize the root keys and open a data file to store the generated addresses.
+
+        Args:
+            wallet (str, optional): Wallet Type. 
+            Either "byron" or "shelley". Defaults to "shelley".
+
+        Raises:
+            ValueError: Raised if wallet is incorrect
+        """
         if wallet.lower() == "shelley":
             phrase = self.cli_mnemonic(24)
         elif wallet.lower() == "byron":
             phrase = self.cli_mnemonic(12)
         else:
-            raise ValueError("test")
+            raise ValueError("Incorrect wallet type.")
         self.root_private = self.root_private_key(phrase)
         keyDict = {
             "phrase": phrase.decode("utf8"),
@@ -67,7 +77,8 @@ class AddressWrap(object):
 
     @staticmethod
     def private_key(root_private, index):
-        """cat root.xsk \
+        """Indices are 2^32
+            cat root.xsk \
                 | ./cardano-address key child 852H/1815H/0H/0/0 \
                 | tee acct.prv \
                 | ./cardano-address key public --with-chain-code > acct.pub
@@ -95,31 +106,40 @@ class AddressWrap(object):
         return timestr
 
     def task(self, address):
-        # Indices are random 2^32.
+        # This is used by concurrect or functional paralleziation.
         private_key = self.private_key(self.root_private, address)
         public_key = self.public_key(private_key)
         return self.payment_address(public_key).decode("utf8")
 
-    def run(
+    def generate(
         self,
         addresses,
-        threading=False,
-        multiprocessing=False,
+        mode=None,
         batch=None,
     ):
+        """Generate Cardano Addresses.
+
+        Args:
+            addresses ([type]): N Addresses to create.
+            mode ([type], optional): "auto_thread", "custom_thread", or "multiprocessing". Defaults to None.
+            batch ([type], optional): Processes to split threads into.
+
+        Returns:
+            list: List of addresses generated.
+        """
         start_time = time.time()
         list_of_addresses = []
         if threading:
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.task, i) for i in range(0, addresses)]
             list_of_addresses.append([f.result() for f in futures])
-        # if thread_custom_pool:
-        #     p = mp.Pool(batch)
-        #     x = p.map(self.task, range(addresses))
-        #     p.close()
-        #     p.join()
-        #     return x
-        elif multiprocessing:
+        if mode == "custom_thread" and batch:
+            p = mp.Pool(batch)
+            resp = p.map(self.task, range(addresses))
+            p.close()
+            p.join()
+            return resp
+        elif mode == "multiprocessing":
             pass
         else:
             for address in range(0, addresses):
@@ -137,7 +157,7 @@ class AddressWrap(object):
 
 
 if __name__ == "__main__":
-    gen = AddressWrap()
+    address = AddressWrap()
     with Timer() as timer:
-        print(gen.run(400000))
+        print(address.generate(10))
     print(str(timer.interval))

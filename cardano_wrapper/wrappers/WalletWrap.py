@@ -10,6 +10,9 @@ from cardano_wrapper.utils import bcolors
 
 class WalletWrap(object):
     def __init__(self):
+        """This object wraps the Cardano Wallet API so that we can use Python functionality
+        to recieve and send API endpoint requests.
+        """
         self.headers = {
             "Accept": "application/json",
             "Content-type": "application/json",
@@ -32,6 +35,17 @@ class WalletWrap(object):
         return r.raise_for_status()
 
     def make_wallet_path(self, wallet_type):
+        """[summary]
+
+        Args:
+            wallet_type (str): Either "shelley" or "byron".
+
+        Raises:
+            ValueError: Raised if the wallet is not "shelley" or "byron".
+
+        Returns:
+            str: Formatted `wallets` URL path.
+        """
         if wallet_type == "shelley":
             return "wallets"
         elif wallet_type == "byron":
