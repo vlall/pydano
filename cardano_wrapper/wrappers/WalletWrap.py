@@ -17,7 +17,7 @@ class WalletWrap(object):
         self.setup()
 
     def setup(self, file="conf.yaml"):
-        conf_path = path.join(path.dirname(__file__), "../../../conf.yaml")
+        conf_path = path.join(path.dirname(__file__), "../../conf.yaml")
         with open(conf_path, "r") as stream:
             conf = yaml.safe_load(stream)
         self.server = conf.get("server")
