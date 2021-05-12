@@ -12,14 +12,19 @@ from datetime import datetime
 
 
 class CLIWrap(object):
-    def __init__(self, network_type, network_id, path="../bin/cardano-cli"):
+    def __init__(
+        self,
+        network_type,
+        network_id,
+        path=path.join(path.dirname(__file__), "../bin/./cardano-cli"),
+    ):
         self.path = path
         self.network_type = network_type
         self.network_id = network_id
 
     def get_protocol(self):
         cmd = (
-            f"./cardano-cli query protocol-parameters "
+            f"{path} query protocol-parameters "
             "{self.network_type} {self.network_id} "
             "--out-file protocol.json"
         )

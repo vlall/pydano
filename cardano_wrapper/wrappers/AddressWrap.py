@@ -14,7 +14,11 @@ from cardano_wrapper.utils import Timer
 
 
 class AddressWrap(object):
-    def __init__(self, path="../bin/cardano-address", wallet="shelley"):
+    def __init__(
+        self,
+        path=path.join(path.dirname(__file__), "../bin/./cardano-address"),
+        wallet="shelley",
+    ):
         self.path = path
         if wallet.lower() == "shelley":
             phrase = self.cli_mnemonic(24)
