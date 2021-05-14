@@ -91,38 +91,6 @@ class RosettaWrap(object):
         print(r.status_code)
         return r.json()
 
-    def events_blocks(self, network_id, offset, limit):
-        payload = {
-            "network_identifier": {
-                "blockchain": "cardano",
-                "network": "testnet",
-            },
-            "metadata": {},
-        }
-        r = requests.post(f"{self.server}/mempool", json=payload, headers=self.headers)
-        print(r.status_code)
-        return r.json()
-
-    def test(
-        self,
-        network_id,
-        current_block_index,
-        current_block_hash,
-    ):
-        payload = {
-            "network_identifier": {
-                "blockchain": "cardano",
-                "network": network_id,
-            },
-            "block_identifier": {
-                "index": current_block_index,
-                "hash": current_block_hash,
-            },
-        }
-        r = requests.post(f"{self.server}/mempool", json=payload, headers=self.headers)
-        print(r.status_code)
-        return r.json()
-
 
 if __name__ == "__main__":
     rosetta = RosettaWrap()
