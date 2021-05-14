@@ -1,3 +1,5 @@
+# !Dockerfile under development, do not try to run.
+
 FROM ubuntu:20.04 AS cardano-wrapper
 
 LABEL version="0.1-beta" \
@@ -20,7 +22,7 @@ ARG NODE_URL="https://hydra.iohk.io/build/5550453/download/1/cardano-node-1.25.1
 ARG WALLET_URL="https://github.com/input-output-hk/cardano-wallet/releases/download/v2021-04-28/cardano-wallet-v2021-04-28-linux64.tar.gz"
 RUN wget $NODE_URL \
     $WALLET_URL
-RUN tar -xf *.tar.gz
+RUN for f in *.tar; do tar xf "$f"; done
 
 RUN wget https://hydra.iohk.io/build/6198010/download/1/testnet-config.json \
     https://hydra.iohk.io/build/6198010/download/1/testnet-byron-genesis.json \
