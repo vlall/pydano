@@ -14,7 +14,7 @@ In the future, the plan is to run continuous integration testing using Docker co
 ## Running scripts
 
 - Make sure your `config.yaml` is pointing to the correct servers. Then run the appropiate script in python from the `scripts/` directory
-- 
+
 ## Running tests
 
 To run tests, use the command `python -m nose2 tests` from the root directory. In the future, the tests can be run in different modes depending on the level of replication a user wishes to achieve (ie: running/syncing node in a compatiablity matrix with cardano wallet).
