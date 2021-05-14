@@ -91,15 +91,29 @@ class WalletWrap(object):
 
     def create_address(self, wallet_type, wallet_id, passphrase, address_index=0):
         wallets = self.make_wallet_path(wallet_type)
-        endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/addresses"
-        r = requests.post(
-            endpoint,
-            json={
-                "passphrase": passphrase,
-                "address_index": address_index,
-            },
-            headers=self.headers,
-        )
+        if wallet_type == "shelley":
+            endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/addresses"
+            r = requests.post(
+                endpoint,
+                json={
+                    "payment": {
+                        "any": [
+                            "addr_shared_vkh1zxt0uvrza94h3hv4jpv0ttddgnwkvdgeyq8jf9w30mcs6y8w3nq",
+                        ]
+                    },
+                },
+                headers=self.headers,
+            )
+        else:
+            endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/addresses"
+            r = requests.post(
+                endpoint,
+                json={
+                    "passphrase": passphrase,
+                    "address_index": address_index,
+                },
+                headers=self.headers,
+            )
         return r.json()
 
     def create_transaction(

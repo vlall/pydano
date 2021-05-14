@@ -71,18 +71,74 @@ class RosettaWrap(object):
         print(r.status_code)
         return r.json()
 
+    def block(
+        self,
+        network_id,
+        current_block_index,
+        current_block_hash,
+    ):
+        payload = {
+            "network_identifier": {
+                "blockchain": "cardano",
+                "network": network_id,
+            },
+            "block_identifier": {
+                "index": current_block_index,
+                "hash": current_block_hash,
+            },
+        }
+        r = requests.post(f"{self.server}/block", json=payload, headers=self.headers)
+        print(r.status_code)
+        return r.json()
+
+    def events_blocks(self, network_id, offset, limit):
+        payload = {
+            "network_identifier": {
+                "blockchain": "cardano",
+                "network": "testnet",
+            },
+            "metadata": {},
+        }
+        r = requests.post(f"{self.server}/mempool", json=payload, headers=self.headers)
+        print(r.status_code)
+        return r.json()
+
+    def test(
+        self,
+        network_id,
+        current_block_index,
+        current_block_hash,
+    ):
+        payload = {
+            "network_identifier": {
+                "blockchain": "cardano",
+                "network": network_id,
+            },
+            "block_identifier": {
+                "index": current_block_index,
+                "hash": current_block_hash,
+            },
+        }
+        r = requests.post(f"{self.server}/mempool", json=payload, headers=self.headers)
+        print(r.status_code)
+        return r.json()
+
 
 if __name__ == "__main__":
     rosetta = RosettaWrap()
     network_id = "testnet"
     print(rosetta.network_status(network_id))
-    sender_address = "addr_test1vpkhrv7856jekfshnf5v0ymjjsd5w7nyuxfn73e9h4xkfgqcfynk4"
+    address = "37btjrVyb4KFFSX8cu1fLc9LmA33sC5TEakbjJtePEHiLf6Uk23fJY5T5dQAJQqM2PLR3A8FofNjnxMwFawPeDVS7ZhLVNdAVUHLTQ84uU8VJQWARG"
+    emptyAddress = "addr_test1vrz3pgwnjxwk8cr7gue8rctqzq4mzwfuz29jgrztxcxk49qep4c79"
     current_block_index = "2580246"
     current_block_hash = (
         "e4659b6668a7f2333794f1c2b0b1a6a445e5598bbd3692fe35eae93cca4cd886"
     )
     print(
         rosetta.account_balance(
-            network_id, sender_address, current_block_index, current_block_hash
+            network_id, emptyAddress, current_block_index, current_block_hash
         )
     )
+    exit()
+    print(rosetta.block(network_id, current_block_index, current_block_hash))
+    print(rosetta.events_blocks(network_id, 5, 5))

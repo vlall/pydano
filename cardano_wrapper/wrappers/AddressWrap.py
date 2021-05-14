@@ -22,11 +22,7 @@ class AddressWrap(object):
         os.path.dirname(os.path.realpath(__file__)) + f"/../bin/{OS}/./cardano-address"
     )
 
-    def __init__(
-        self,
-        wallet="shelley",
-        os=None,
-    ):
+    def __init__(self, wallet="shelley", os=None, write=False):
         """Initialize the root keys and open a data file to store the generated addresses.
 
         Args:
@@ -37,19 +33,23 @@ class AddressWrap(object):
             ValueError: Raised if wallet is incorrect
         """
         if wallet.lower() == "shelley":
-            phrase = self.cli_mnemonic(24)
+            self.phrase = self.cli_mnemonic(24)
         elif wallet.lower() == "byron":
-            phrase = self.cli_mnemonic(12)
+            self.phrase = self.cli_mnemonic(12)
         else:
             raise ValueError("Incorrect wallet type.")
-        self.root_private = self.root_private_key(phrase)
+
+    def make_keys(self, write=False):
+        self.root_private = self.root_private_key(self.phrase)
         keyDict = {
-            "phrase": phrase.decode("utf8"),
+            "phrase": self.phrase.decode("utf8"),
             "root_private_key": self.root_private.decode("utf8"),
         }
         time_str = self.time_str()
-        with open(f"keys_{time_str}.json", "w") as keys:
-            json.dump(keyDict, keys)
+        if write:
+            with open(f"keys_{time_str}.json", "w") as keys:
+                json.dump(keyDict, keys)
+        return keyDict
 
     @staticmethod
     def trezor_mnenmoic(language="english"):
@@ -58,11 +58,16 @@ class AddressWrap(object):
         return words.split()
 
     @staticmethod
-    def cli_mnemonic(n):
+    def cli_mnemonic(n, to_list=False):
         #  ./cardano-address recovery-phrase generate --size 24 > phrase.prv
         cmd = f"{AddressWrap.executable} recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
-        return output.stdout.rstrip()
+        words = output.stdout.rstrip()
+        if to_list:
+            words = str(words, "UTF-8")
+            return words.split()
+        else:
+            return words
 
     @staticmethod
     def root_private_key(phrase):
@@ -115,12 +120,7 @@ class AddressWrap(object):
         public_key = self.public_key(private_key)
         return self.payment_address(public_key).decode("utf8")
 
-    def generate(
-        self,
-        addresses,
-        mode=None,
-        batch=None,
-    ):
+    def generate(self, addresses, mode=None, batch=None, write=False):
         """Generate Cardano Addresses.
 
         Args:
@@ -155,8 +155,9 @@ class AddressWrap(object):
             "time": time.time() - start_time,
         }
         time_str = self.time_str()
-        with open(f"addresses_{time_str}.json", "w") as keys:
-            json.dump(keyDict, keys)
+        if write:
+            with open(f"addresses_{time_str}.json", "w") as keys:
+                json.dump(keyDict, keys)
         return list_of_addresses
 
 

@@ -1,0 +1,5 @@
+asyncio>=3.4.3
+mnemonic>=0.19
+nose2>=0.10.0
+PyYAML>=5.4.1
+requests>=2.25.1
