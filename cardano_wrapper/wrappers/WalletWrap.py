@@ -23,14 +23,14 @@ class WalletWrap(object):
         conf_path = path.join(path.dirname(__file__), "../../conf.yaml")
         with open(conf_path, "r") as stream:
             conf = yaml.safe_load(stream)
-        self.server = conf.get("server")
+        self.server = conf.get("wallet_server")
         if not self.server:
             raise ValueError(
                 f"{bcolors.WARNING}Define server in `{file}`.{bcolors.ENDC}"
             )
         else:
             print(f"Sending requests to {self.server}")
-        self.version = conf.get("version")
+        self.version = conf.get("wallet_version")
         r = requests.get(f"{self.server}/{self.version}/network/information")
         return r.raise_for_status()
 
@@ -50,11 +50,11 @@ class WalletWrap(object):
             return "wallets"
         elif wallet_type == "byron":
             print(
-                f"{bcolors.WARNING}Warning: Since you're using Byron, there might be some errors. \
-                    The construction of random wallet in itself is deprecated, in particular \
-                    the restoration from an encrypted root private key. These endpoints exist \
-                    to ease migrations from legacy software such as cardano-sl but should be \
-                    avoided by new applications.{bcolors.ENDC}"
+                f"{bcolors.WARNING}Warning:{bcolors.ENDC} Since you're using Byron, there might be some errors. "
+                "The construction of random wallet in itself is deprecated, in particular "
+                "the restoration from an encrypted root private key. These endpoints exist "
+                "to ease migrations from legacy software such as cardano-sl but should be "
+                "avoided by new applications."
             )
             return "byron-wallets"
         else:
@@ -301,7 +301,7 @@ class WalletWrap(object):
 
 if __name__ == "__main__":
     wallet = WalletWrap()
-    print(wallet.get_network_information())
+    print(wallet.network_information())
     print(wallet.is_sync_ready())
     print(wallet.list_wallets())
     name = "Test Wallet May 6 2021"

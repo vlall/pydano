@@ -2,6 +2,7 @@ import sys
 import hashlib
 import os
 import base64
+import time
 
 # import ed25519
 class bcolors:

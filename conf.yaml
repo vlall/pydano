@@ -1,3 +1,5 @@
 # Enter configuration items here.
-server: http://localhost:8090
-version: v2
+wallet_server: http://YOUR_SERVER:8090
+wallet_version: v2
+rosetta_server: http://YOUR_SERVER:8080
+rosetta_server_2: https://explorer.cardano-testnet.iohkdev.io/rosetta

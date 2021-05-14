@@ -32,4 +32,4 @@ addresses = wallet.list_addresses(wallet_type, wallet_id)
 from_address = addresses[0]["id"]
 to_address = addresses[1]["id"]
 print(from_address)
-print(walletList)
+print(to_address)

@@ -11,22 +11,26 @@ import json
 from datetime import datetime
 from mnemonic import Mnemonic
 from cardano_wrapper.utils import Timer
-from os import path
+import os
 
 
 class AddressWrap(object):
     """Cardano Python wrapper for the cardano-addresses executable."""
 
-    PATH = path.join(path.dirname(__file__), "../bin/")
+    OS = "mac"
+    executable = (
+        os.path.dirname(os.path.realpath(__file__)) + f"/../bin/{OS}/./cardano-address"
+    )
 
     def __init__(
         self,
         wallet="shelley",
+        os=None,
     ):
         """Initialize the root keys and open a data file to store the generated addresses.
 
         Args:
-            wallet (str, optional): Wallet Type. 
+            wallet (str, optional): Wallet Type.
             Either "byron" or "shelley". Defaults to "shelley".
 
         Raises:
@@ -56,7 +60,7 @@ class AddressWrap(object):
     @staticmethod
     def cli_mnemonic(n):
         #  ./cardano-address recovery-phrase generate --size 24 > phrase.prv
-        cmd = f"{AddressWrap.PATH}./cardano-address recovery-phrase generate --size {n}"
+        cmd = f"{AddressWrap.executable} recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
         return output.stdout.rstrip()
 
@@ -64,14 +68,14 @@ class AddressWrap(object):
     def root_private_key(phrase):
         #  cat phrase.prv \
         # | ./cardano-address key from-recovery-phrase Shelley > root.xs
-        cmd = "./cardano-address key from-recovery-phrase Shelley"
+        cmd = f"{AddressWrap.executable} key from-recovery-phrase Shelley"
         output = subprocess.run(cmd.split(), input=phrase, capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
     def root_public_key(root_private):
         # cat root.xsk | ./cardano-address key public --with-chain-code
-        cmd = "./cardano-address key public --with-chain-code"
+        cmd = f"{AddressWrap.executable}  key public --with-chain-code"
         output = subprocess.run(cmd.split(), input=root_private, capture_output=True)
         return output.stdout.rstrip()
 
@@ -84,19 +88,19 @@ class AddressWrap(object):
                 | ./cardano-address key public --with-chain-code > acct.pub
         """
         # cmd = "./cardano-address key child 852H/1815H/0H/0/0"
-        cmd = f"./cardano-address key child 1852H/1815H/0H/0/{index}"
+        cmd = f"{AddressWrap.executable}  key child 1852H/1815H/0H/0/{index}"
         output = subprocess.run(cmd.split(), input=root_private, capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
     def public_key(private_key):
-        cmd = " ./cardano-address key public --with-chain-code"
+        cmd = f"{AddressWrap.executable}  key public --with-chain-code"
         output = subprocess.run(cmd.split(), input=private_key, capture_output=True)
         return output.stdout.rstrip()
 
     @staticmethod
     def payment_address(public_key):
-        cmd = "./cardano-address address payment --network-tag testnet"
+        cmd = f"{AddressWrap.executable}  address payment --network-tag testnet"
         output = subprocess.run(cmd.split(), input=public_key, capture_output=True)
         return output.stdout.rstrip()
 
@@ -129,7 +133,7 @@ class AddressWrap(object):
         """
         start_time = time.time()
         list_of_addresses = []
-        if threading:
+        if mode == "threading":
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.task, i) for i in range(0, addresses)]
             list_of_addresses.append([f.result() for f in futures])

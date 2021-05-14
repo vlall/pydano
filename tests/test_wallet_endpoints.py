@@ -43,7 +43,7 @@ class TestWalletEndpoints(unittest.TestCase):
             cls.wallet_type, cls.wallet_id, cls.passphrase, 2147483649
         )
         # Takes time for the wallet/address to sync if we want to be able to test transaction creation.
-        time.sleep(240)
+        # time.sleep(240)
         print("addresses")
         cls.addresses = cls.wallet.list_addresses(cls.wallet_type, cls.wallet_id)
         from_address = cls.addresses[0]["id"]
@@ -116,10 +116,6 @@ class TestWalletEndpoints(unittest.TestCase):
                 "slot_number": 8030,
             },
         }
-        print("@@")
-        print(expected)
-        print("@@")
-        print(resp)
         cls.assertEqual(resp.keys(), expected.keys())
 
     def test_inspect_address(cls):

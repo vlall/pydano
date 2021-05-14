@@ -12,7 +12,6 @@ from datetime import datetime
 
 
 class CLIWrap(object):
-    # TODO: Complete Wrapping.
 
     PATH = path.join(path.dirname(__file__), "../bin/")
 
