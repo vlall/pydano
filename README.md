@@ -2,7 +2,7 @@
 
 **Under-development: Some features are incomplete.**
 
-This is a Cardano wrapper package using Python that allows for quick development using the Cardano executables and the Rest APIs used in the Cardano ecosystem. It works with the official cardano executables, currently supporting `cardano-cli` and `cardano-addresses`. It also allows for Rest API interaction using Cardano Wallet and Cardano Rosetta. Wrapping code in a general purpose object-oriented language like Python is useful for quickly automating, monitoring, deploying, testing, and building complex interactions with Cardano components on the fly.
+This is a Cardano wrapper package using Python that allows for quick interaction with Cardano executables and the Rest APIs used in the Cardano ecosystem. It works with the official cardano executables, currently supporting `cardano-cli` and `cardano-addresses`. It also allows for Rest API interaction using Cardano Wallet and Cardano Rosetta. Wrapping code in a general purpose object-oriented language like Python is useful for quickly automating, monitoring, deploying, testing, and building complex interactions with Cardano components on the fly.
 
 In the future, the plan is to run continuous integration testing using Docker containers with Github Actions.
 
