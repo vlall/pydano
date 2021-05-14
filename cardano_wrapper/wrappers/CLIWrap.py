@@ -13,7 +13,10 @@ from datetime import datetime
 
 class CLIWrap(object):
 
-    PATH = path.join(path.dirname(__file__), "../bin/")
+    OS = "mac"
+    executable = (
+        os.path.dirname(os.path.realpath(__file__)) + f"/../bin/{OS}/./cardano-cli"
+    )
 
     def __init__(
         self,
@@ -26,7 +29,7 @@ class CLIWrap(object):
 
     def get_protocol(self):
         cmd = (
-            f"{CLIWrap.PATH}./cardano-cli query protocol-parameters "
+            f"{CLIWrap.executable} query protocol-parameters "
             "--{self.network_type} {self.network_id} "
             "--out-file protocol.json"
         )
@@ -41,7 +44,7 @@ class CLIWrap(object):
             --testnet-magic 1097911063
         """
         cmd = (
-            f"{CLIWrap.PATH}./cardano-cli query utxo "
+            f"{CLIWrap.executable} query utxo "
             "--address {address} "
             "--{self.network_type} {self.network_id} "
         )
@@ -60,7 +63,7 @@ class CLIWrap(object):
             --out-file tx2.raw
         """
         cmd = (
-            f"{CLIWrap.PATH}./cardano-cli transaction build-raw "
+            f"{CLIWrap.executable} transaction build-raw "
             "--tx-in {tx_in} "
             "--tx-out {tx_out} "
             "--invalid-hereafter {invalid_hereafter} "
@@ -76,7 +79,7 @@ class CLIWrap(object):
             ./cardano-cli query tip --testnet-magic 1097911063
         """
         cmd = (
-            f"{CLIWrap.PATH}./cardano-cli query tip "
+            f"{CLIWrap.executable} query tip "
             "--{self.network_type} {self.network_id} "
         )
         output = subprocess.run(cmd.split(), capture_output=True)
@@ -92,7 +95,7 @@ class CLIWrap(object):
             --out-file tx2.signed
         """
         cmd = (
-            f"{CLIWrap.PATH}./cardano-cli transaction sign "
+            f"{CLIWrap.executable} transaction sign "
             " --tx-body-file {tx_body_file} "
             "--signing-key-file {signing_key_file} "
             "--{self.network_type} {self.network_id} "
@@ -110,7 +113,7 @@ class CLIWrap(object):
             --testnet-magic 1097911063 
         """
         cmd = (
-            f"{CLIWrap.PATH}./cardano-cli transaction submit "
+            f"{CLIWrap.executable} transaction submit "
             "--tx-file {tx_file} "
             "--{self.network_type} {self.network_id} "
         )
