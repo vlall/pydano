@@ -17,7 +17,10 @@ import os
 class AddressWrap(object):
     """Cardano Python wrapper for the cardano-addresses executable."""
 
-    OS = "mac"
+    conf_path = path.join(path.dirname(__file__), "../../conf.yaml")
+    with open(conf_path, "r") as stream:
+        conf = yaml.safe_load(stream)
+    OS = conf.get("os")
     executable = (
         os.path.dirname(os.path.realpath(__file__)) + f"/../bin/{OS}/./cardano-address"
     )
@@ -114,8 +117,15 @@ class AddressWrap(object):
         timestr = datetime.utcnow().strftime("%m-%d-%Y_%H-%M-%S-%f")[:-3]
         return timestr
 
-    def task(self, address):
-        # This is used by concurrect or functional paralleziation.
+    def task(self, nth_address):
+        """Given an nth address, return generated payment address.
+
+        Args:
+            address (int): Address number.
+
+        Returns:
+            str: Payment address.
+        """
         private_key = self.private_key(self.root_private, address)
         public_key = self.public_key(private_key)
         return self.payment_address(public_key).decode("utf8")
@@ -146,10 +156,10 @@ class AddressWrap(object):
         elif mode == "multiprocessing":
             pass
         else:
-            for address in range(0, addresses):
-                if address % 100:
-                    print(address)
-                list_of_addresses.append(self.task(address))
+            for nth_address in range(0, addresses):
+                if nth_address % 100:
+                    print(nth_address)
+                list_of_addresses.append(self.task(nth_address))
         keyDict = {
             "list_of_addresses": list_of_addresses,
             "time": time.time() - start_time,
