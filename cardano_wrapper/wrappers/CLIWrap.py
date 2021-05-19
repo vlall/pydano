@@ -39,12 +39,6 @@ class CLIWrap(object):
         return output.stdout.rstrip()
 
     def query_utxo(self, address):
-        """ 
-        Example:
-            ./cardano-cli query utxo \
-            --address $(cat pay.addr) \
-            --testnet-magic 1097911063
-        """
         cmd = (
             f"{CLIWrap.executable} query utxo "
             "--address {address} "
@@ -54,22 +48,34 @@ class CLIWrap(object):
         return output.stdout.rstrip()
 
     def calculate_min_fee(
-        self, tx_in, tx_out, invalid_hereafter, out_file, protocol_param_file
+        self,
+        tx_in,
+        tx_in_index,
+        tx_out_list,
+        tx_out_amount,
+        invalid_hereafter,
+        out_file,
+        protocol_param_file,
     ):
+        out_count = len(tx_out_list)
         cmd = f"{CLIWrap.executable} transaction calculate-min-fee "
         "--tx-body-file {out_file} "
         "--tx-in-count 1 "
-        "--tx-out-count 2 "
+        "--tx-out-count {out_count} "
         "--witness-count 1 "
         "--{self.network_type} {self.network_id} "
         "--protocol-params-file {protocol_param_file}"
-        print(fee)
         fee = subprocess.run(cmd.split())
+        print(fee)
+        tx_outs = ""
+        # Handle multiple tx outputs using tx_out_list.
+        for i, tx in enumerate(tx_out_list):
+            tx_outs = tx_outs + " --tx-out {tx}+{tx_out_amount[i]}"
 
         cmd = (
             f"{CLIWrap.executable} transaction build-raw "
-            "--tx-in {tx_in} "
-            "--tx-out {tx_out} "
+            "--tx-in {tx_in}#{tx_in_index}"
+            "{tx_outs} "
             "--invalid-hereafter {invalid_hereafter} "
             "--fee {fee} "
             "--out-file {out_file} "
@@ -91,10 +97,6 @@ class CLIWrap(object):
         return output.stdout.rstrip()
 
     def query_tip(self):
-        """
-        Example:
-            ./cardano-cli query tip --testnet-magic 1097911063
-        """
         cmd = (
             f"{CLIWrap.executable} query tip "
             "--{self.network_type} {self.network_id} "
