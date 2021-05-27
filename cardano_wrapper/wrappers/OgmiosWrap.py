@@ -11,7 +11,7 @@ import websockets
 
 
 class OgmiosWrap(object):
-    SOCKET_HEADER = {
+    PAYLOAD = {
         "type": "jsonwsp/request",
         "version": "1.0",
         "servicename": "ogmios",
@@ -41,19 +41,26 @@ class OgmiosWrap(object):
             return await websocket.recv()
 
     def query(self, s):
-        payload = {
-            "methodname": "Query",
-            "args": {"query": s},
-        }.update(OgmiosWrap.SOCKET_HEADER)
+        payload = OgmiosWrap.PAYLOAD
+        payload.update(
+            {
+                "methodname": "Query",
+                "args": {"query": s},
+            }
+        )
+        print(payload)
         return asyncio.get_event_loop().run_until_complete(
             self.run_query(self.server, payload)
         )
 
     def request_next(self):
-        payload = {
-            "methodname": "RequestNext",
-            "args": {},
-        }.update(OgmiosWrap.SOCKET_HEADER)
+        payload = OgmiosWrap.PAYLOAD
+        payload.update(
+            {
+                "methodname": "RequestNext",
+                "args": {},
+            }
+        )
         return asyncio.get_event_loop().run_until_complete(
             self.run_query(self.server, payload)
         )
@@ -66,25 +73,31 @@ class OgmiosWrap(object):
                 "hash": "f8084c61b6a238acec985b59310b6ecec49c0ab8352249afd7268da5cff2a457",
             }
         ]
-        payload = {
-            "methodname": "FindIntersect",
-            "args": {"points": points},
-        }.update(OgmiosWrap.SOCKET_HEADER)
+        payload = OgmiosWrap.PAYLOAD
+        payload.update(
+            {
+                "methodname": "FindIntersect",
+                "args": {"points": points},
+            }
+        )
         return asyncio.get_event_loop().run_until_complete(
             self.run_query(self.server, payload)
         )
 
     def acquire(self, slot, hash):
         # Last Byron block
-        payload = {
-            "methodname": "Acquire",
-            "args": {
-                "point": {
-                    "slot": 4492799,
-                    "hash": "f8084c61b6a238acec985b59310b6ecec49c0ab8352249afd7268da5cff2a457",
+        payload = OgmiosWrap.PAYLOAD
+        payload.update(
+            {
+                "methodname": "Acquire",
+                "args": {
+                    "point": {
+                        "slot": 4492799,
+                        "hash": "f8084c61b6a238acec985b59310b6ecec49c0ab8352249afd7268da5cff2a457",
+                    },
                 },
-            },
-        }.update(OgmiosWrap.SOCKET_HEADER)
+            }
+        )
         return asyncio.get_event_loop().run_until_complete(
             self.run_query(self.server, payload)
         )
@@ -99,7 +112,8 @@ class OgmiosWrap(object):
 
 if __name__ == "__main__":
     og = OgmiosWrap()
+    # print(og.query("ledgerTip"))
     # print(og.find_intersect())
     # print(og.acquire())
     with Timer() as timer:
-        resp = og.sequential(100000)
+        resp = og.sequential(1)
