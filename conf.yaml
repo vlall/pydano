@@ -1,5 +1,9 @@
 # Enter configuration items here.
+#server: http://35.177.57.64:8090
 os: mac
-wallet_server: YOUR_SERVER:8080
+wallet_server: YOUR_SERVER:8090
 wallet_version: v2
-rosetta_server: YOUR_SERVER:8090s
+rosetta_server: YOUR_SERVER:8080
+rosetta_server_2: https://explorer.cardano-testnet.iohkdev.io/rosetta
+ogmios_server: ws://127.0.0.1:1337
+db_sync_server: localhost
