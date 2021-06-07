@@ -4,7 +4,6 @@ from os import path
 import requests
 import yaml
 import subprocess
-from cardano_wrapper.wrappers.AddressWrap import AddressWrap
 from cardano_wrapper.utils import bcolors
 
 
