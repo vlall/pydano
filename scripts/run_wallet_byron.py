@@ -1,6 +1,6 @@
 import cardano_wrapper.utils
-from cardano_wrapper.wrappers.AddressWrap import AddressWrap
-from cardano_wrapper.wrappers.WalletWrap import WalletWrap
+from pydano.wrappers.AddressWrap import AddressWrap
+from pydano.wrappers.WalletWrap import WalletWrap
 import os
 import requests
 import json
