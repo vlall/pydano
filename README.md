@@ -2,12 +2,12 @@
 
 This is a Cardano wrapper library implemented using Python that allows for quick interaction with the services used within the Cardano ecosystem. It works with official cardano executables, REST API interactions, and websocket requests. Here's a list of currently wrapped services:
 
-- (Cardano Addresses)[https://github.com/input-output-hk/cardano-addresses] :green_circle:
-- (Cardano Wallet)[https://github.com/input-output-hk/cardano-wallet] :green_circle:
-- (Cardano Rosetta)[https://github.com/input-output-hk/cardano-rosetta] :green_circle:
-- (Cardano Db-sync)[https://github.com/input-output-hk/cardano-db-sync] :green_circle:
-- (Cardano Node CLI)[https://github.com/input-output-hk/cardano-node/tree/master/cardano-cli] :red_circle:
-- (Ogmios)[https://github.com/CardanoSolutions/ogmios] :red_circle:
+- [Cardano Addresses](https://github.com/input-output-hk/cardano-addresses) :green_circle:
+- [Cardano Wallet](https://github.com/input-output-hk/cardano-wallet) :green_circle:
+- [Cardano Rosetta](https://github.com/input-output-hk/cardano-rosetta) :green_circle:
+- [Cardano Db-sync](https://github.com/input-output-hk/cardano-db-sync) :green_circle:
+- [Cardano Node CLI](https://github.com/input-output-hk/cardano-node/tree/master/cardano-cli) :red_circle:
+- [Ogmios](https://github.com/CardanoSolutions/ogmios) :red_circle:
 
 Wrapping code in a general purpose object-oriented language like Python is useful for quickly automating, monitoring, deploying, testing, and building complex interactions with Cardano components on the fly.
 
