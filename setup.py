@@ -17,7 +17,7 @@ setup(
     author_email="",
     install_requires=["nose2", "mnemonic", "requests", "pyyaml", "asyncio"],
     packages=find_packages(exclude=["ez_setup"]),
-    data_files=[('~/', ['./config.yaml'])],
+    data_files=[("~/", ["./config.yaml"])],
     include_package_data=True,
     test_suite="nose.collector",
 )

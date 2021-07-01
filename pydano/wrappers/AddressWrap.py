@@ -14,20 +14,13 @@ from pydano.utils import Timer
 import os
 from os import path
 import yaml
+import pathlib
 
 
 class AddressWrap(object):
     """Cardano Python wrapper for the cardano-addresses executable."""
 
-    conf_path = path.join(path.dirname(__file__), "../../conf.yaml")
-    with open(conf_path, "r") as stream:
-        conf = yaml.safe_load(stream)
-    OS = conf.get("os")
-    executable = (
-        os.path.dirname(os.path.realpath(__file__)) + f"/../bin/{OS}/./cardano-address"
-    )
-
-    def __init__(self, wallet="shelley", os=None, write=False):
+    def __init__(self, conf_path, write=False):
         """Initialize the root keys and open a data file to store the generated addresses.
 
         Args:
@@ -37,17 +30,27 @@ class AddressWrap(object):
         Raises:
             ValueError: Raised if wallet is incorrect
         """
+        with open(conf_path, "r") as stream:
+            conf = yaml.safe_load(stream)
+        address_path = conf.get("cardano_address_path")
+        self.executable = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            f"../../{address_path}",
+        )
+
+    def wallet_setup(self, wallet="shelley"):
         if wallet.lower() == "shelley":
-            self.phrase = self.cli_mnemonic(24)
+            phrase = self.cli_mnemonic(24)
         elif wallet.lower() == "byron":
-            self.phrase = self.cli_mnemonic(12)
+            phrase = self.cli_mnemonic(12)
         else:
             raise ValueError("Incorrect wallet type.")
+        return phrase
 
-    def make_keys(self, write=False):
-        self.root_private = self.root_private_key(self.phrase)
+    def make_keys(self, phrase, write=False):
+        self.root_private = self.root_private_key(phrase)
         keyDict = {
-            "phrase": self.phrase.decode("utf8"),
+            "phrase": phrase.decode("utf8"),
             "root_private_key": self.root_private.decode("utf8"),
         }
         time_str = self.time_str()
@@ -56,16 +59,14 @@ class AddressWrap(object):
                 json.dump(keyDict, keys)
         return keyDict
 
-    @staticmethod
     def trezor_mnenmoic(language="english"):
         mnemo = Mnemonic(language)
         words = mnemo.generate(strength=256)
         return words.split()
 
-    @staticmethod
-    def cli_mnemonic(n, to_list=False):
+    def cli_mnemonic(self, n, to_list=False):
         #  ./cardano-address recovery-phrase generate --size 24 > phrase.prv
-        cmd = f"{AddressWrap.executable} recovery-phrase generate --size {n}"
+        cmd = f"{self.executable} recovery-phrase generate --size {n}"
         output = subprocess.run(cmd.split(), capture_output=True)
         words = output.stdout.rstrip()
         if to_list:
@@ -74,23 +75,20 @@ class AddressWrap(object):
         else:
             return words
 
-    @staticmethod
-    def root_private_key(phrase):
+    def root_private_key(self, phrase):
         #  cat phrase.prv \
         # | ./cardano-address key from-recovery-phrase Shelley > root.xs
-        cmd = f"{AddressWrap.executable} key from-recovery-phrase Shelley"
+        cmd = f"{self.executable} key from-recovery-phrase Shelley"
         output = subprocess.run(cmd.split(), input=phrase, capture_output=True)
         return output.stdout.rstrip()
 
-    @staticmethod
-    def root_public_key(root_private):
+    def root_public_key(self, root_private):
         # cat root.xsk | ./cardano-address key public --with-chain-code
-        cmd = f"{AddressWrap.executable}  key public --with-chain-code"
+        cmd = f"{self.executable} key public --with-chain-code"
         output = subprocess.run(cmd.split(), input=root_private, capture_output=True)
         return output.stdout.rstrip()
 
-    @staticmethod
-    def private_key(root_private, index):
+    def private_key(self, root_private, index):
         """Indices are 2^32
             cat root.xsk \
                 | ./cardano-address key child 852H/1815H/0H/0/0 \
@@ -98,29 +96,26 @@ class AddressWrap(object):
                 | ./cardano-address key public --with-chain-code > acct.pub
         """
         # cmd = "./cardano-address key child 852H/1815H/0H/0/0"
-        cmd = f"{AddressWrap.executable}  key child 1852H/1815H/0H/0/{index}"
+        cmd = f"{self.executable} key child 1852H/1815H/0H/0/{index}"
         output = subprocess.run(cmd.split(), input=root_private, capture_output=True)
         return output.stdout.rstrip()
 
-    @staticmethod
-    def public_key(private_key):
-        cmd = f"{AddressWrap.executable}  key public --with-chain-code"
+    def public_key(self, private_key):
+        cmd = f"{self.executable} key public --with-chain-code"
         output = subprocess.run(cmd.split(), input=private_key, capture_output=True)
         return output.stdout.rstrip()
 
-    @staticmethod
-    def payment_address(public_key):
-        cmd = f"{AddressWrap.executable}  address payment --network-tag testnet"
+    def payment_address(self, public_key):
+        cmd = f"{self.executable} address payment --network-tag testnet"
         output = subprocess.run(cmd.split(), input=public_key, capture_output=True)
         return output.stdout.rstrip()
 
-    @staticmethod
-    def time_str():
+    def time_str(self):
         timestr = datetime.utcnow().strftime("%m-%d-%Y_%H-%M-%S-%f")[:-3]
         return timestr
 
-    def task(self, nth_address):
-        """Given an nth address, return generated payment address.
+    def task(self, address):
+        """Given an nth address, s generated payment address.
 
         Args:
             address (int): Address number.
@@ -143,6 +138,8 @@ class AddressWrap(object):
         Returns:
             list: List of addresses generated.
         """
+        phrase = self.wallet_setup("shelley")
+        print(self.make_keys(phrase))
         start_time = time.time()
         list_of_addresses = []
         if mode == "threading":
@@ -174,7 +171,7 @@ class AddressWrap(object):
 
 
 if __name__ == "__main__":
-    address = AddressWrap()
+    address = AddressWrap("../../config.yaml")
     with Timer() as timer:
         print(address.generate(10))
     print(str(timer.interval))

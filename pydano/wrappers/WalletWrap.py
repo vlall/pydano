@@ -5,6 +5,9 @@ import requests
 import yaml
 import subprocess
 from pydano.utils import bcolors
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 
 class WalletWrap(object):
@@ -87,21 +90,23 @@ class WalletWrap(object):
         print(json.dumps(mnemonic))
         return r.json()
 
+    def construct_address(self, payment, stake, validation):
+        endpoint = f"{self.server}/{self.version}/addresses"
+        r = requests.post(
+            endpoint,
+            json={
+                "payment": payment,
+                "stake": stake,
+                "validation": validation,  # Enum: "required" or "recommended"
+            },
+            headers=self.headers,
+        )
+        return r.json()
+
     def create_address(self, wallet_type, wallet_id, passphrase, address_index=0):
         wallets = self.make_wallet_path(wallet_type)
         if wallet_type == "shelley":
-            endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/addresses"
-            r = requests.post(
-                endpoint,
-                json={
-                    "payment": {
-                        "any": [
-                            "addr_shared_vkh1zxt0uvrza94h3hv4jpv0ttddgnwkvdgeyq8jf9w30mcs6y8w3nq",
-                        ]
-                    },
-                },
-                headers=self.headers,
-            )
+            raise (KeyError)
         else:
             endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/addresses"
             r = requests.post(
@@ -115,31 +120,23 @@ class WalletWrap(object):
         return r.json()
 
     def create_transaction(
-        self, wallet_type, wallet_id, to_address, quantity, assets=None
+        self, wallet_type, wallet_id, passphrase, to_address, quantity, assets=None
     ):
         wallets = self.make_wallet_path(wallet_type)
-        endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/payment-fees"
-        print(endpoint)
+        endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/transactions"
         payload = {
+            "passphrase": passphrase,
             "payments": [
                 {
                     "address": to_address,
                     "amount": {"quantity": quantity, "unit": "lovelace"},
                 }
-            ]
+            ],
         }
         if assets:
-            policy_id = assets["policy_id"]
-            asset_name = assets["asset_name"]
-            quantity = assets["quantity"]
-            assets: [
-                {
-                    "policy_id": policy_id,
-                    "asset_name": asset_name,
-                    "quantity": quantity,
-                }
-            ]
-            payload["payments"][0]["assets"] = assets
+            payload["payments"][0]["asset"] = [assets]
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(json.dumps(payload))
         r = requests.post(
             endpoint,
             json=payload,
