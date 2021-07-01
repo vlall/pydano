@@ -9,25 +9,25 @@ import random
 import concurrent.futures
 import json
 from datetime import datetime
+import yaml
 
 
 class CLIWrap(object):
-    conf_path = path.join(path.dirname(__file__), "../../conf.yaml")
-    with open(conf_path, "r") as stream:
-        conf = yaml.safe_load(stream)
-    OS = conf.get("os")
-
-    executable = (
-        os.path.dirname(os.path.realpath(__file__)) + f"/../bin/{OS}/./cardano-cli"
-    )
-
     def __init__(
         self,
+        conf_path,
         network_type=None,
         network_id=None,
     ):
         self.network_type = network_type
         self.network_id = network_id
+        with open(conf_path, "r") as stream:
+            conf = yaml.safe_load(stream)
+        cli_path = conf.get("cardano_cli_path")
+        self.executable = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            f"../../{cli_path}",
+        )
 
     def get_protocol(self):
         cmd = (
@@ -51,7 +51,7 @@ class CLIWrap(object):
         self,
         tx_in,
         tx_in_index,
-        tx_out_list,
+        tx_outs,
         tx_out_amount,
         invalid_hereafter,
         out_file,
@@ -134,14 +134,14 @@ class CLIWrap(object):
 
 
 if __name__ == "__main__":
-    cli = CLIWrap()
+    cli = CLIWrap("../../config.yaml")
     # key_in = "/Users/vishall/prog/cardano/dev/cardano-cli-binaries/cardano-node-1.26.1/pay_remote.prv"
     # sign_key = cli.convert_cardano_address_key(key_in=key_in, key_out="delete.prv")
     # print(sign_key)
-    cli.calculate_min_fee(
-        tx_in="53cc31d5575b7096f11b9830da1efea485c887f37cc5743bf4673686cad2f36d",
-        tx_out=["addr_test1vpkhrv7856jekfshnf5v0ymjjsd5w7nyuxfn73e9h4xkfgqcfynk4"],
-        invalid_hereafter=123,
-        out_file="test.txt",
-        protocol_param_file="protocol.json",
-    )
+    # cli.calculate_min_fee(
+    #     tx_in="53cc31d5575b7096f11b9830da1efea485c887f37cc5743bf4673686cad2f36d",
+    #     tx_outs="addr_test1vpkhrv7856jekfshnf5v0ymjjsd5w7nyuxfn73e9h4xkfgqcfynk4",
+    #     invalid_hereafter=123,
+    #     out_file="test.txt",
+    #     protocol_param_file="protocol.json",
+    # )
