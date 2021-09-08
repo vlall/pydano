@@ -307,6 +307,16 @@ class WalletWrap(object):
         r = requests.get(f"{self.server}/{self.version}/shared-wallets/{wallet_id}/")
         print(r.json())
 
+    def import_addresses(self, wallets, wallet_id, addresses):
+        print("*** Import addresses. ***")
+        r = requests.put(
+            f"{self.server}/{self.version}/{wallet_id}/addresses",
+            json={
+                "addresses": addresses,
+            },
+        )
+        return r.json()
+
 
 if __name__ == "__main__":
     wallet = WalletWrap()

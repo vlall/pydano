@@ -1,4 +1,4 @@
-import cardano_wrapper.utils
+import pydano.utils
 from pydano.wrappers.AddressWrap import AddressWrap
 from pydano.wrappers.WalletWrap import WalletWrap
 import os
@@ -10,7 +10,7 @@ import time
 This is a test script with implements the functionality of 
 the Python WalletWrap object.
 """
-wallet = WalletWrap()
+wallet = WalletWrap("../my-config.yaml")
 wallet_type = "byron"
 wallet_name = "This is a wallet that will test the defrag script"
 passphrase = "d9c9f9g9g9125"
