@@ -27,19 +27,15 @@ class RosettaWrap(object):
             raise ValueError(
                 f"{bcolors.WARNING}Define server in `{file}`.{bcolors.ENDC}"
             )
-        else:
-            print(f"Sending requests to {self.server}")
 
     def network_status(self, network_id):
         payload = {
             "network_identifier": {"blockchain": "cardano", "network": network_id},
             "metadata": {},
         }
-        print("*** Network status. ***")
         r = requests.post(
             f"{self.server}/network/status", json=payload, headers=self.headers
         )
-        print(r.status_code)
         if r.status_code == 404:
             raise ConnectionError(
                 f"{bcolors.WARNING}Please check your server URL in the config.{bcolors.ENDC}"
@@ -60,14 +56,13 @@ class RosettaWrap(object):
             },
             "account_identifier": {"address": sender_address, "metadata": {}},
             # "block_identifier": {
-            #    "index": current_block_index,
-            #    "hash": current_block_hash,
+            #     "index": current_block_index,
+            #     "hash": current_block_hash,
             # },
         }
         r = requests.post(
             f"{self.server}/account/balance", json=payload, headers=self.headers
         )
-        print(r.status_code)
         return r.json()
 
     def account_coins(
@@ -95,7 +90,6 @@ class RosettaWrap(object):
         r = requests.post(
             f"{self.server}/account/coins", json=payload, headers=self.headers
         )
-        print(r.status_code)
         return r.json()
 
     def block(
@@ -115,7 +109,6 @@ class RosettaWrap(object):
             },
         }
         r = requests.post(f"{self.server}/block", json=payload, headers=self.headers)
-        print(r.status_code)
         return r.json()
 
 
@@ -131,6 +124,5 @@ if __name__ == "__main__":
     )
     print(rosetta.account_balance(network_id, emptyAddress))
     print(rosetta.account_coins(network_id, emptyAddress))
-    exit()
     # print(rosetta.block(network_id, current_block_index, current_block_hash))
     # print(rosetta.events_blocks(network_id, 5, 5))
