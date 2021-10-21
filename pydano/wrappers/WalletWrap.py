@@ -29,8 +29,6 @@ class WalletWrap(object):
             raise ValueError(
                 f"{bcolors.WARNING}Define server in `{file}`.{bcolors.ENDC}"
             )
-        else:
-            print(f"Sending requests to {self.server}")
         self.version = conf.get("wallet_version")
         r = requests.get(f"{self.server}/{self.version}/network/information")
         return r.raise_for_status()
@@ -73,7 +71,15 @@ class WalletWrap(object):
             )
         return r.json()
 
-    def create_wallet(self, wallet_type, name, passphrase, mnemonic, style="random"):
+    def create_wallet(
+        self,
+        wallet_type,
+        name,
+        passphrase,
+        mnemonic,
+        style="random",
+        address_pool_gap=20,
+    ):
         wallets = self.make_wallet_path(wallet_type)
         print("*** Create Wallet. ***")
         endpoint = f"{self.server}/{self.version}/{wallets}/"
@@ -84,10 +90,11 @@ class WalletWrap(object):
                 "name": name,
                 "passphrase": passphrase,
                 "mnemonic_sentence": mnemonic,
+                "address_pool_gap": address_pool_gap,
             },
             headers=self.headers,
         )
-        print(json.dumps(mnemonic))
+        # print(json.dumps(mnemonic))
         return r.json()
 
     def construct_address(self, payment, stake, validation):
@@ -120,21 +127,28 @@ class WalletWrap(object):
         return r.json()
 
     def create_transaction(
-        self, wallet_type, wallet_id, passphrase, to_address, quantity, assets=None
+        self, wallet_type, wallet_id, passphrase, to_addresses, quantities, assets=None
     ):
+        if len(to_addresses) != len(quantities):
+            raise ("List Error")
         wallets = self.make_wallet_path(wallet_type)
         endpoint = f"{self.server}/{self.version}/{wallets}/{wallet_id}/transactions"
+        payments = []
+        for idx in range(0, len(to_addresses)):
+            payments.append(
+                {
+                    "address": to_addresses[idx],
+                    "amount": {"quantity": quantities[idx], "unit": "lovelace"},
+                },
+            )
+        # print(payments)
         payload = {
             "passphrase": passphrase,
-            "payments": [
-                {
-                    "address": to_address,
-                    "amount": {"quantity": quantity, "unit": "lovelace"},
-                }
-            ],
+            "payments": payments,
         }
-        if assets:
-            payload["payments"][0]["asset"] = [assets]
+        # print(payload)
+        # if assets:
+        #     payload["payments"][0]["asset"] = [assets]
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(json.dumps(payload))
         r = requests.post(
@@ -174,12 +188,6 @@ class WalletWrap(object):
         print("*** List Wallet Information. ***")
         endpoint = f"{self.server}/{self.version}/{wallets}"
         print(endpoint)
-        r = requests.get(endpoint)
-        return r.json()
-
-    def list_utxo(self, wallet_id):
-        print("*** Get UTxO Statistics. ***")
-        endpoint = f"{self.server}/{self.version}/{wallet_id}/statistics/utxos"
         r = requests.get(endpoint)
         return r.json()
 
@@ -250,11 +258,14 @@ class WalletWrap(object):
 
     def utxo_statistics(self, wallet_id):
         print("*** Get UTxO Statistics. ***")
-        r = requests.get(f"{self.server}/{self.version}/{wallet_id}/statistics/utxos")
+        r = requests.get(
+            f"{self.server}/{self.version}/wallets/{wallet_id}/statistics/utxos"
+        )
         return r.json()
 
-    def update_wallet_name(self, wallets, wallet_id, name):
+    def update_wallet_name(self, wallet_type, wallet_id, name):
         print("*** Update wallet name. ***")
+        wallets = self.make_wallet_path(wallet_type)
         r = requests.put(
             f"{self.server}/{self.version}/{wallets}/{wallet_id}",
             json={
@@ -264,9 +275,11 @@ class WalletWrap(object):
         return r.json()
 
     def update_wallet_passphrase(
-        self, wallets, wallet_id, old_passphrase, new_passphrase
+        self, wallet_type, wallet_id, old_passphrase, new_passphrase
     ):
         print("*** Update wallet passphrase. ***")
+        wallets = self.make_wallet_path(wallet_type)
+
         r = requests.put(
             f"{self.server}/{self.version}/{wallets}/{wallet_id}/passphrase",
             json={
