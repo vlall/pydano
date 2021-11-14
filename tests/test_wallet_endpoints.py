@@ -54,7 +54,7 @@ class TestWalletEndpoints(unittest.TestCase):
         # Make a transaction.
         print(
             cls.wallet.create_transaction(
-                cls.wallet_type, cls.wallet_id, to_address, quantity
+                cls.wallet_type, cls.wallet_id, [to_address], [quantity]
             )
         )
         time.sleep(30)
