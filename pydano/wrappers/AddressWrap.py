@@ -32,11 +32,11 @@ class AddressWrap(object):
         """
         with open(conf_path, "r") as stream:
             conf = yaml.safe_load(stream)
-        address_path = conf.get("cardano_address_path")
-        self.executable = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            f"../../{address_path}",
-        )
+        self.executable = conf.get("cardano_address_path")
+       # self.executable = os.path.join(
+       #     os.path.dirname(os.path.realpath(__file__)),
+       #     f"../../{address_path}",
+       # )
 
     def wallet_setup(self, wallet="shelley"):
         if wallet.lower() == "shelley":
@@ -127,7 +127,7 @@ class AddressWrap(object):
         public_key = self.public_key(private_key)
         return self.payment_address(public_key).decode("utf8")
 
-    def generate(self, addresses, mode=None, batch=None, write=False):
+    def generate(self, addresses, mode=None, batch=None, write=False, wallet_type="shelley"):
         """Generate Cardano Addresses.
 
         Args:
@@ -138,7 +138,7 @@ class AddressWrap(object):
         Returns:
             list: List of addresses generated.
         """
-        phrase = self.wallet_setup("shelley")
+        phrase = self.wallet_setup(wallet_type)
         print(self.make_keys(phrase))
         start_time = time.time()
         list_of_addresses = []

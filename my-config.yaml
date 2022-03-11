@@ -1,0 +1,11 @@
+# Enter configuration items here.
+wallet_server: http://localhost:8090
+wallet_version: v2
+rosetta_server: http://localhost:8080
+ogmios_server: http://localhost:1337
+db_sync_server: localhost
+
+# Executable paths
+cardano_wallet_path:
+cardano_cli_path: pydano/bin/mac/./cardano-cli
+cardano_address_path: cardano-address 
